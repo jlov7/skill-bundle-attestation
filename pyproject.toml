@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skill-bundle-attestation"
+version = "0.1.0"
+description = "Deterministic bundle identity and attestation tooling for agent skill bundles."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["supply-chain", "attestation", "dsse", "in-toto", "security"]
+dependencies = [
+  "cryptography>=42.0",
+  "jsonschema>=4.21",
+  "pyyaml>=6.0",
+  "sigstore>=4.2",
+]
+
+[project.scripts]
+sba = "sba:main"
+sba-digest = "sba_digest:main"
+sba-attest = "sba_attest:main"
+sba-verify = "sba_verify:main"
+sba-zip = "sba_zip:main"
+
+[tool.setuptools]
+py-modules = [
+  "ci_validate",
+  "sba",
+  "sba_archive",
+  "sba_attest",
+  "sba_crypto",
+  "sba_digest",
+  "sba_verify",
+  "sba_zip",
+]
+packages = ["sba_schemas"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+sba_schemas = ["*.json"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", ".venv-mutmut", "__pycache__", "mutants", "test-vectors"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+exclude = "^(\\.venv|\\.venv-mutmut|mutants|test-vectors|\\.specstory)"

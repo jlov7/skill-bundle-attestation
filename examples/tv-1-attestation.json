@@ -1,0 +1,31 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "minimal-test-skill",
+      "digest": {
+        "sha256": "1627201fc34e5fd7b076b6df18fdaa505848cebd480344b1ee881dbd39a3fa49"
+      }
+    }
+  ],
+  "predicateType": "https://jlov7.github.io/sba/predicates/sba-content-v1",
+  "predicate": {
+    "skill": {
+      "name": "minimal-test-skill",
+      "description": "A minimal skill bundle containing only SKILL.md for SBA test vector TV-1",
+      "version": "1.0.0"
+    },
+    "bundle": {
+      "digestAlgorithm": "sba-directory-v1",
+      "digest": "sha256:1627201fc34e5fd7b076b6df18fdaa505848cebd480344b1ee881dbd39a3fa49",
+      "entryCount": 1,
+      "totalBytes": 293,
+      "bundleType": "directory"
+    },
+    "metadata": {
+      "generatedAt": "2026-01-26T17:41:47Z",
+      "generatorTool": "sba-attest",
+      "generatorVersion": "1.0.0"
+    }
+  }
+}

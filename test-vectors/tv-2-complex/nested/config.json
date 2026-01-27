@@ -1,0 +1,8 @@
+{
+  "skill_id": "complex-test-skill",
+  "version": "2.0.0",
+  "settings": {
+    "verbose": true,
+    "max_retries": 3
+  }
+}

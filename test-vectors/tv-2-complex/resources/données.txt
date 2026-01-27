@@ -1,0 +1,2 @@
+This file has a Unicode filename (données means "data" in French).
+It tests the digest algorithm's Unicode normalization (NFC).

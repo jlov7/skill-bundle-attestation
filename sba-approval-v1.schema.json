@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jlov7.github.io/sba/schemas/sba-approval-v1.json",
+  "title": "SBA Approval Predicate",
+  "description": "Records human or organizational approval decisions for skill bundles. This predicate enables multi-party approval workflows, enterprise policy gates, and registry acceptance decisions.",
+  "type": "object",
+  "required": ["skill", "bundle", "approval"],
+  "additionalProperties": false,
+  "properties": {
+    "skill": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "description": "Identifies the skill being approved.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "The skill name as declared in SKILL.md."
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Skill version if declared."
+        }
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "required": ["digest"],
+      "additionalProperties": false,
+      "description": "References the exact bundle being approved.",
+      "properties": {
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The sba-directory-v1 digest of the bundle being approved."
+        },
+        "contentAttestationDigest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Optional SHA-256 of the sba-content-v1 Statement that this approval references."
+        },
+        "auditAttestationDigest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Optional SHA-256 of the sba-audit-v1 Statement that informed this approval."
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "required": ["decision", "timestamp", "scope"],
+      "additionalProperties": false,
+      "description": "The approval decision details.",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["APPROVED", "REJECTED", "CONDITIONAL", "REVOKED"],
+          "description": "The approval decision. APPROVED = unconditionally approved, REJECTED = denied, CONDITIONAL = approved with restrictions, REVOKED = previously approved but now withdrawn."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the decision was made."
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["GLOBAL", "ORGANIZATION", "TEAM", "PROJECT", "REGISTRY"],
+          "description": "The scope of this approval. GLOBAL = approved everywhere, ORGANIZATION = approved within an org, TEAM = approved for specific team, PROJECT = approved for specific project, REGISTRY = approved for public registry listing."
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this approval expires, if time-limited."
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Human-readable justification for the decision."
+        }
+      }
+    },
+    "conditions": {
+      "type": "array",
+      "description": "Conditions attached to CONDITIONAL approvals.",
+      "items": {
+        "type": "object",
+        "required": ["type", "description"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["CAPABILITY_RESTRICTION", "ENVIRONMENT_RESTRICTION", "USAGE_LIMIT", "MONITORING_REQUIRED", "REVIEW_REQUIRED", "OTHER"],
+            "description": "Type of condition."
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the condition."
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Machine-readable parameters for the condition."
+          }
+        }
+      }
+    },
+    "approver": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "description": "Identity of the approver.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["HUMAN", "SYSTEM", "COMMITTEE", "AUTOMATED_POLICY"],
+          "description": "Type of approver."
+        },
+        "identity": {
+          "type": "string",
+          "description": "Identifier for the approver (email, system ID, committee name)."
+        },
+        "organization": {
+          "type": "string",
+          "description": "Organization the approver belongs to."
+        },
+        "role": {
+          "type": "string",
+          "description": "Role or title of the approver."
+        }
+      }
+    },
+    "reviewedArtifacts": {
+      "type": "array",
+      "description": "List of attestations or artifacts reviewed before making this decision.",
+      "items": {
+        "type": "object",
+        "required": ["type", "digest"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["sba-content-v1", "sba-audit-v1", "sba-approval-v1", "sbom", "other"],
+            "description": "Type of artifact reviewed."
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$",
+            "description": "SHA-256 digest of the reviewed artifact."
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional note about what was observed in this artifact."
+          }
+        }
+      }
+    },
+    "supersedes": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "If this approval supersedes a previous one, reference it here.",
+      "properties": {
+        "previousApprovalDigest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 of the previous sba-approval-v1 Statement being superseded."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why the previous approval is being superseded."
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional metadata about the approval.",
+      "properties": {
+        "workflowId": {
+          "type": "string",
+          "description": "Identifier for the approval workflow instance."
+        },
+        "ticketUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the approval request ticket."
+        },
+        "policyVersion": {
+          "type": "string",
+          "description": "Version of the approval policy applied."
+        }
+      }
+    }
+  }
+}

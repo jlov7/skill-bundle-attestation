@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jlov7.github.io/sba/schemas/sba-audit-v1.json",
+  "title": "SBA Audit Predicate",
+  "description": "Records the results of automated security audits performed on a skill bundle. This predicate captures policy evaluations, static analysis findings, and SBOM references. Compatible with SKILLCHECK and similar audit tools.",
+  "type": "object",
+  "required": ["skill", "bundle", "audit"],
+  "additionalProperties": false,
+  "properties": {
+    "skill": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "description": "Identifies the skill that was audited.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "The skill name as declared in SKILL.md."
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Skill version if declared."
+        }
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "required": ["digest"],
+      "additionalProperties": false,
+      "description": "References the bundle that was audited. Links to sba-content-v1 attestation.",
+      "properties": {
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The sba-directory-v1 digest of the bundle that was audited. MUST match a corresponding sba-content-v1 attestation."
+        },
+        "contentAttestationDigest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Optional SHA-256 of the sba-content-v1 Statement JSON that this audit references."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "required": ["tool", "timestamp", "result"],
+      "additionalProperties": false,
+      "description": "Details of the audit execution and results.",
+      "properties": {
+        "tool": {
+          "type": "object",
+          "required": ["name", "version"],
+          "additionalProperties": true,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Name of the audit tool (e.g., 'skillcheck', 'sba-audit')."
+            },
+            "version": {
+              "type": "string",
+              "description": "Version of the audit tool."
+            },
+            "uri": {
+              "type": "string",
+              "format": "uri",
+              "description": "URI to the audit tool's documentation or repository."
+            }
+          }
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the audit was performed."
+        },
+        "result": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "WARN", "SKIP"],
+          "description": "Overall audit result. PASS = all policies satisfied, FAIL = blocking violations, WARN = non-blocking issues, SKIP = audit not applicable."
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Audit duration in seconds."
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The policy configuration used for this audit.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable policy name."
+        },
+        "version": {
+          "type": "string",
+          "description": "Policy version identifier."
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 digest of the policy file for reproducibility."
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI where the policy can be retrieved."
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "description": "Individual findings from the audit.",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity", "message"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the finding type (e.g., 'SBA-SEC-001')."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"],
+            "description": "Severity level of the finding."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable description of the finding."
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "File path relative to bundle root."
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Line number if applicable."
+              },
+              "column": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Column number if applicable."
+              }
+            }
+          },
+          "rule": {
+            "type": "string",
+            "description": "The policy rule that triggered this finding."
+          },
+          "waived": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this finding was waived by policy exception."
+          },
+          "waiverReason": {
+            "type": "string",
+            "description": "Justification for the waiver if waived=true."
+          }
+        }
+      }
+    },
+    "sbom": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reference to the Software Bill of Materials generated during audit.",
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["CycloneDX", "SPDX"],
+          "description": "SBOM format standard."
+        },
+        "version": {
+          "type": "string",
+          "description": "SBOM format version (e.g., '1.5' for CycloneDX)."
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "SHA-256 digest of the SBOM file."
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI where the SBOM can be retrieved."
+        },
+        "componentCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of components identified in the SBOM."
+        }
+      }
+    },
+    "waivers": {
+      "type": "array",
+      "description": "Policy waivers applied during this audit.",
+      "items": {
+        "type": "object",
+        "required": ["rule", "reason"],
+        "properties": {
+          "rule": {
+            "type": "string",
+            "description": "The rule or finding ID being waived."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Justification for the waiver."
+          },
+          "approvedBy": {
+            "type": "string",
+            "description": "Identity of the person who approved the waiver."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this waiver expires, if temporary."
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional metadata about the audit.",
+      "properties": {
+        "environment": {
+          "type": "string",
+          "description": "Environment where audit was performed (e.g., 'ci', 'local')."
+        },
+        "triggerType": {
+          "type": "string",
+          "enum": ["manual", "ci", "scheduled", "pre-commit", "pre-publish"],
+          "description": "What triggered this audit."
+        },
+        "ciJobUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the CI job that ran this audit."
+        }
+      }
+    }
+  }
+}

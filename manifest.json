@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SBA Test Vector Manifest",
+  "description": "Expected digests for SBA test vectors. Used by CI to verify digest algorithm implementation.",
+  "version": "1.0.0",
+  "generatedAt": "2026-01-26T17:34:33Z",
+  "digestAlgorithm": "sba-directory-v1",
+  "testVectors": {
+    "tv-1-minimal": {
+      "description": "Minimal skill bundle with single SKILL.md file",
+      "path": "test-vectors/tv-1-minimal",
+      "expectedDigest": "sha256:1627201fc34e5fd7b076b6df18fdaa505848cebd480344b1ee881dbd39a3fa49",
+      "entryCount": 1,
+      "totalBytes": 293,
+      "files": [
+        {
+          "path": "SKILL.md",
+          "digest": "sha256:c50e9138cfd22de64de0febbb5cd6168cb3fc0c0192f61c5345e9be1ca7ce33a",
+          "size": 293
+        }
+      ]
+    },
+    "tv-2-complex": {
+      "description": "Complex skill bundle with nested directories, binary content, and Unicode filenames",
+      "path": "test-vectors/tv-2-complex",
+      "expectedDigest": "sha256:353102351f19e357f3da15f14020948157cb411afe59a064ae365b103dbf88ae",
+      "entryCount": 6,
+      "totalBytes": 1301,
+      "files": [
+        {
+          "path": "SKILL.md",
+          "digest": "sha256:1d4ada0dce5b05bffbcb7d2250c3c95712c4d1e0615b4581533fdde52bf710bb",
+          "size": 614
+        },
+        {
+          "path": "helper.py",
+          "digest": "sha256:01d2219531b3bf14d2c3749416edd01517bc12fd20e48a9ad30e0461059295cd",
+          "size": 252
+        },
+        {
+          "path": "nested/config.json",
+          "digest": "sha256:a5f7515113bb8bb7606589cc2466aa1070d455f1b68d38ef99eaa322fc4cd80d",
+          "size": 124
+        },
+        {
+          "path": "nested/deep/template.txt",
+          "digest": "sha256:d666fbee3ef1c8497f1d09ec2e6b3cae807f107f520b7051c8bf1fb613268433",
+          "size": 156
+        },
+        {
+          "path": "resources/donn\u00e9es.txt",
+          "digest": "sha256:2532d424ee9ffd9d1815d0f07c0e8874082b19060f2a2f54cbd6fad8a020ec14",
+          "size": 129
+        },
+        {
+          "path": "resources/icon.bin",
+          "digest": "sha256:566eda80f6a96a9f3443af96b6b0773fac03141cadcf748148c9579db593cf7d",
+          "size": 26
+        }
+      ]
+    },
+    "tv-3-archive": {
+      "description": "Deterministic ZIP archive of tv-2-complex",
+      "path": "test-vectors/tv-3-archive.zip",
+      "mode": "archive",
+      "expectedDigest": "sha256:cbc62dfd7829e8aad8b907006541bdfbe16f3d5d2a7e8c391b7249302f65b10e",
+      "archiveSize": 1977,
+      "directoryDigest": "sha256:353102351f19e357f3da15f14020948157cb411afe59a064ae365b103dbf88ae",
+      "note": "Archive created with ZIP_STORED, fixed timestamp 2025-01-01T00:00:00Z"
+    }
+  }
+}

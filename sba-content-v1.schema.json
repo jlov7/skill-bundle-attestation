@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jlov7.github.io/sba/schemas/sba-content-v1.schema.json",
+  "title": "SBA Content Predicate v1",
+  "description": "Skill Bundle Attestation content predicate. Binds a skill bundle identity to its metadata and declared capabilities.",
+  "type": "object",
+  "required": [
+    "skill",
+    "bundle"
+  ],
+  "properties": {
+    "skill": {
+      "type": "object",
+      "description": "Skill metadata extracted from SKILL.md frontmatter",
+      "required": [
+        "name",
+        "description"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Skill name from SKILL.md frontmatter",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "description": {
+          "type": "string",
+          "description": "Skill description from SKILL.md frontmatter",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "version": {
+          "type": "string",
+          "description": "Skill version (semver recommended)",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+        },
+        "compatibility": {
+          "type": "array",
+          "description": "List of compatible agent platforms",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "bundle": {
+      "type": "object",
+      "description": "Bundle identity and structure information",
+      "required": [
+        "digestAlgorithm",
+        "digest",
+        "entryCount",
+        "totalBytes"
+      ],
+      "properties": {
+        "digestAlgorithm": {
+          "type": "string",
+          "description": "Algorithm used for bundle digest computation",
+          "const": "sba-directory-v1"
+        },
+        "digest": {
+          "type": "string",
+          "description": "Bundle digest in 'algorithm:hex' format (directory mode)",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "archiveDigest": {
+          "type": "string",
+          "description": "SHA-256 hash of the archive file (when bundleType='archive'). For archives, Statement.subject[].digest MUST match this value.",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "bundleType": {
+          "type": "string",
+          "description": "Whether this attestation is for a directory or archive. Determines how Statement.subject[].digest is interpreted.",
+          "enum": ["directory", "archive"],
+          "default": "directory"
+        },
+        "entryCount": {
+          "type": "integer",
+          "description": "Number of files included in digest computation",
+          "minimum": 1
+        },
+        "totalBytes": {
+          "type": "integer",
+          "description": "Total size of all files in bytes",
+          "minimum": 0
+        },
+        "excludePatterns": {
+          "type": "array",
+          "description": "Patterns excluded from digest computation",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".git",
+            ".attestations",
+            ".skillcheck",
+            ".specstory",
+            "SBA.",
+            ".sba",
+            ".DS_Store",
+            "Thumbs.db",
+            "__pycache__",
+            "node_modules",
+            ".venv",
+            ".gitattributes",
+            ".gitignore"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Declared capability requirements (claims by skill author, not enforcement)",
+      "properties": {
+        "filesystem": {
+          "type": "object",
+          "description": "Filesystem access requirements",
+          "properties": {
+            "read": {
+              "type": "array",
+              "description": "Glob patterns for read access",
+              "items": {
+                "type": "string"
+              }
+            },
+            "write": {
+              "type": "array",
+              "description": "Glob patterns for write access",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "network": {
+          "type": "object",
+          "description": "Network access requirements",
+          "properties": {
+            "outbound": {
+              "type": "boolean",
+              "description": "Whether outbound network access is required"
+            },
+            "domains": {
+              "type": "array",
+              "description": "Allowed domain patterns (if outbound is true)",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "process": {
+          "type": "object",
+          "description": "Process execution requirements",
+          "properties": {
+            "exec": {
+              "type": "boolean",
+              "description": "Whether subprocess execution is required"
+            },
+            "interpreters": {
+              "type": "array",
+              "description": "Required interpreters (e.g., python3, node)",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "tools": {
+          "type": "object",
+          "description": "Tool/MCP access requirements",
+          "properties": {
+            "allowedTools": {
+              "type": "array",
+              "description": "List of tool identifiers the skill may invoke",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "secrets": {
+          "type": "object",
+          "description": "Secret/credential requirements",
+          "properties": {
+            "requires": {
+              "type": "array",
+              "description": "Named secrets required by the skill",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "humanConfirmation": {
+          "type": "object",
+          "description": "Human-in-the-loop requirements",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "Whether human confirmation is required for certain actions"
+            },
+            "rationale": {
+              "type": "string",
+              "description": "Explanation of when/why confirmation is needed"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional attestation metadata",
+      "properties": {
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when attestation was generated"
+        },
+        "generatorTool": {
+          "type": "string",
+          "description": "Tool that generated this attestation"
+        },
+        "generatorVersion": {
+          "type": "string",
+          "description": "Version of the generator tool"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

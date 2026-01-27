@@ -1,0 +1,10 @@
+{
+  "generatedAt": "2026-01-27T00:24:16Z",
+  "total": 3614,
+  "killed": 1372,
+  "survived": 2242,
+  "notRun": 0,
+  "minKillRate": 0.3796,
+  "maxSurvivors": 2242,
+  "maxNotRun": 0
+}

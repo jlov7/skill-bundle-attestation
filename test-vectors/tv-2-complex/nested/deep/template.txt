@@ -1,0 +1,4 @@
+Template file for testing deep nesting.
+
+This file is located at: nested/deep/template.txt
+It tests the digest algorithm's handling of deeply nested paths.

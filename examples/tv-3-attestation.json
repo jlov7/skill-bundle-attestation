@@ -1,0 +1,32 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "complex-test-skill",
+      "digest": {
+        "sha256": "cbc62dfd7829e8aad8b907006541bdfbe16f3d5d2a7e8c391b7249302f65b10e"
+      }
+    }
+  ],
+  "predicateType": "https://jlov7.github.io/sba/predicates/sba-content-v1",
+  "predicate": {
+    "skill": {
+      "name": "complex-test-skill",
+      "description": "A complex skill bundle with nested directories, binary content, and Unicode for SBA test vector TV-2",
+      "version": "2.0.0"
+    },
+    "bundle": {
+      "digestAlgorithm": "sba-directory-v1",
+      "digest": "sha256:353102351f19e357f3da15f14020948157cb411afe59a064ae365b103dbf88ae",
+      "entryCount": 6,
+      "totalBytes": 1301,
+      "bundleType": "archive",
+      "archiveDigest": "sha256:cbc62dfd7829e8aad8b907006541bdfbe16f3d5d2a7e8c391b7249302f65b10e"
+    },
+    "metadata": {
+      "generatedAt": "2026-01-26T17:41:47Z",
+      "generatorTool": "sba-attest",
+      "generatorVersion": "1.0.0"
+    }
+  }
+}

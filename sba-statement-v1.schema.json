@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jlov7.github.io/sba/schemas/sba-statement-v1.json",
+  "title": "SBA In-toto Statement",
+  "description": "JSON Schema for SBA attestations wrapped in in-toto Statement format. This schema defines how SBA predicates are carried within the in-toto attestation framework for compatibility with Sigstore and supply chain security tooling.",
+  "type": "object",
+  "required": ["_type", "subject", "predicateType", "predicate"],
+  "additionalProperties": false,
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "https://in-toto.io/Statement/v1",
+      "description": "In-toto Statement version identifier. MUST be exactly this value."
+    },
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "description": "The software artifact(s) this attestation applies to. For SBA, this MUST contain exactly one subject representing the skill bundle.",
+      "items": {
+        "type": "object",
+        "required": ["name", "digest"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Human-readable identifier for the subject. SHOULD match predicate.skill.name."
+          },
+          "digest": {
+            "type": "object",
+            "required": ["sha256"],
+            "additionalProperties": false,
+            "properties": {
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$",
+                "description": "SHA-256 digest of the bundle (without 'sha256:' prefix). For directory attestations, this is the sba-directory-v1 digest. For archive attestations, this is the archive file's SHA-256 hash."
+              }
+            }
+          }
+        }
+      }
+    },
+    "predicateType": {
+      "type": "string",
+      "enum": [
+        "https://jlov7.github.io/sba/predicates/sba-content-v1",
+        "https://jlov7.github.io/sba/predicates/sba-audit-v1",
+        "https://jlov7.github.io/sba/predicates/sba-approval-v1"
+      ],
+      "description": "URI identifying the predicate type. Determines which schema applies to the predicate field."
+    },
+    "predicate": {
+      "type": "object",
+      "description": "The predicate payload. Structure depends on predicateType."
+    }
+  },
+  "$defs": {
+    "verificationRules": {
+      "title": "SBA Verification Rules (Normative)",
+      "description": "These rules MUST be enforced by compliant verifiers.",
+      "rules": [
+        {
+          "id": "VR-001",
+          "severity": "MUST",
+          "description": "Verifiers MUST reject if Statement.subject[0].digest.sha256 does not match the computed digest of the artifact being verified."
+        },
+        {
+          "id": "VR-002",
+          "severity": "MUST",
+          "description": "For sba-content-v1 predicates with bundleType='directory': Verifiers MUST reject if Statement.subject[0].digest.sha256 does not equal predicate.bundle.digest (with 'sha256:' prefix removed)."
+        },
+        {
+          "id": "VR-003",
+          "severity": "MUST",
+          "description": "For sba-content-v1 predicates with bundleType='archive': Verifiers MUST reject if predicate.bundle.archiveDigest (with prefix removed) does not equal Statement.subject[0].digest.sha256."
+        },
+        {
+          "id": "VR-004",
+          "severity": "MUST",
+          "description": "Verifiers MUST reject if predicate.bundle.entryCount does not match the actual entry count in the bundle."
+        },
+        {
+          "id": "VR-005",
+          "severity": "MUST",
+          "description": "Verifiers MUST reject if predicate.bundle.totalBytes does not match the actual total bytes of included files."
+        },
+        {
+          "id": "VR-006",
+          "severity": "SHOULD",
+          "description": "Verifiers SHOULD warn if Statement.subject[0].name does not match predicate.skill.name."
+        }
+      ]
+    },
+    "dsseEnvelope": {
+      "title": "DSSE Envelope Structure",
+      "description": "When signed, SBA Statements are wrapped in a DSSE envelope.",
+      "type": "object",
+      "required": ["payloadType", "payload", "signatures"],
+      "properties": {
+        "payloadType": {
+          "type": "string",
+          "const": "application/vnd.in-toto+json",
+          "description": "Media type for the payload. MUST be this value for Sigstore compatibility."
+        },
+        "payload": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "description": "Base64-encoded JSON of the in-toto Statement."
+        },
+        "signatures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["sig"],
+            "properties": {
+              "keyid": {
+                "type": "string",
+                "description": "Optional key identifier."
+              },
+              "sig": {
+                "type": "string",
+                "contentEncoding": "base64",
+                "description": "Base64-encoded signature over PAE(payloadType, payload)."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
