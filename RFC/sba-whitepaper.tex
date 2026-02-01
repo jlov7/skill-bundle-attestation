@@ -1,0 +1,1293 @@
+% SBA White Paper - RFC Style Document
+% Skill Bundle Attestation: A Deterministic Identity and Attestation Framework
+% for AI Agent Skill Bundles
+%
+% Author: Jason M. Lovell
+% Version: 1.0 (RFC Draft)
+% Date: January 2026
+
+\documentclass[11pt,a4paper]{article}
+
+% =============================================================================
+% CRITICAL: Packages to prevent text clipping and overfull hbox warnings
+% =============================================================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}  % Latin Modern fonts - better than default CM
+
+% Microtype: THE key package for preventing text clipping
+% Provides character protrusion and font expansion
+\usepackage[
+    activate={true,nocompatibility},
+    final,
+    tracking=true,
+    kerning=true,
+    spacing=true,
+    factor=1100,
+    stretch=10,
+    shrink=10
+]{microtype}
+
+% Additional line-breaking controls
+\emergencystretch=3em  % Allow extra stretch in paragraphs
+\tolerance=9999        % High tolerance for bad line breaks
+\hyphenpenalty=50      % Slight penalty for hyphenation
+\exhyphenpenalty=50    % Penalty after explicit hyphen
+
+% Prevent widows and orphans
+\widowpenalty=10000
+\clubpenalty=10000
+
+% =============================================================================
+% Page Layout
+% =============================================================================
+\usepackage[
+    a4paper,
+    top=1in,
+    bottom=1in,
+    left=1in,
+    right=1in,
+    headheight=14pt
+]{geometry}
+
+% =============================================================================
+% Typography and Formatting
+% =============================================================================
+\usepackage{setspace}
+\setstretch{1.3}  % 1.3 line spacing for readability
+
+\usepackage{parskip}  % Paragraph spacing instead of indentation
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5\baselineskip}
+
+% =============================================================================
+% Headers and Footers
+% =============================================================================
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small SBA RFC v1.0}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Plain style for title page
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+% =============================================================================
+% Section Formatting
+% =============================================================================
+\usepackage{titlesec}
+
+\titleformat{\section}
+    {\normalfont\Large\bfseries}
+    {\thesection.}
+    {0.5em}
+    {}
+
+\titleformat{\subsection}
+    {\normalfont\large\bfseries}
+    {\thesubsection}
+    {0.5em}
+    {}
+
+\titleformat{\subsubsection}
+    {\normalfont\normalsize\bfseries}
+    {\thesubsubsection}
+    {0.5em}
+    {}
+
+\titlespacing*{\section}{0pt}{2\baselineskip}{1\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.5\baselineskip}{0.5\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{1\baselineskip}{0.5\baselineskip}
+
+% =============================================================================
+% Colors and Hyperlinks
+% =============================================================================
+\usepackage[dvipsnames]{xcolor}
+\usepackage[
+    colorlinks=true,
+    linkcolor=NavyBlue,
+    citecolor=NavyBlue,
+    urlcolor=NavyBlue,
+    bookmarks=true,
+    bookmarksnumbered=true,
+    pdfauthor={Jason M. Lovell},
+    pdftitle={Skill Bundle Attestation (SBA) RFC v1.0},
+    pdfsubject={Deterministic Identity and Attestation Framework for AI Agent Skill Bundles},
+    pdfkeywords={SBA, attestation, supply chain, AI agents, skill bundles, in-toto, DSSE}
+]{hyperref}
+
+% =============================================================================
+% Code Listings
+% =============================================================================
+\usepackage{listings}
+% Use default monospace font (inconsolata not available)
+
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{codecomment}{RGB}{0,128,0}
+\definecolor{codestring}{RGB}{163,21,21}
+\definecolor{codekeyword}{RGB}{0,0,255}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    framesep=3pt,
+    xleftmargin=3pt,
+    xrightmargin=3pt,
+    breaklines=true,
+    breakatwhitespace=true,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    showstringspaces=false,
+    tabsize=2,
+    captionpos=b,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    keywordstyle=\color{codekeyword}\bfseries,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt
+}
+
+% JSON syntax highlighting
+\lstdefinelanguage{json}{
+    morestring=[b]",
+    morecomment=[l]{//},
+    literate=
+        *{:}{{{\color{codekeyword}:}}}{1}
+        {,}{{{\color{codekeyword},}}}{1}
+        {\{}{{{\color{codekeyword}\{}}}{1}
+        {\}}{{{\color{codekeyword}\}}}}{1}
+        {[}{{{\color{codekeyword}[}}}{1}
+        {]}{{{\color{codekeyword}]}}}{1}
+}
+
+% Bash syntax
+\lstdefinelanguage{bash}{
+    morekeywords={python3, pip, make, git, sba, echo, export},
+    morecomment=[l]{\#},
+    morestring=[b]",
+    morestring=[b]'
+}
+
+% =============================================================================
+% Tables
+% =============================================================================
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+% =============================================================================
+% Figures and Graphics
+% =============================================================================
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{
+    font=small,
+    labelfont=bf,
+    format=hang,
+    margin=1cm
+}
+
+% =============================================================================
+% Lists
+% =============================================================================
+\usepackage{enumitem}
+\setlist{nosep, leftmargin=*}
+\setlist[itemize]{label=\textbullet}
+\setlist[enumerate]{label=\arabic*.}
+
+% =============================================================================
+% RFC 2119 Keywords
+% =============================================================================
+\newcommand{\MUST}{\textbf{MUST}}
+\newcommand{\MUSTNOT}{\textbf{MUST NOT}}
+\newcommand{\SHOULD}{\textbf{SHOULD}}
+\newcommand{\SHOULDNOT}{\textbf{SHOULD NOT}}
+\newcommand{\MAY}{\textbf{MAY}}
+\newcommand{\REQUIRED}{\textbf{REQUIRED}}
+\newcommand{\OPTIONAL}{\textbf{OPTIONAL}}
+
+% =============================================================================
+% Custom Commands
+% =============================================================================
+\newcommand{\sba}{\textsc{SBA}}
+\newcommand{\intoto}{\textsc{in-toto}}
+\newcommand{\dsse}{\textsc{DSSE}}
+\newcommand{\sigstore}{\textsc{Sigstore}}
+
+% Code inline
+\newcommand{\code}[1]{\texttt{#1}}
+
+% File paths
+\newcommand{\filepath}[1]{\texttt{#1}}
+
+% =============================================================================
+% Document Information
+% =============================================================================
+\title{
+    \vspace{-1cm}
+    \textbf{Skill Bundle Attestation (SBA)}\\[0.5em]
+    \Large A Deterministic Identity and Attestation Framework\\
+    for AI Agent Skill Bundles\\[1em]
+    \large RFC Version 1.0
+}
+
+\author{
+    Jason M. Lovell\\
+    \small\texttt{jase.lovell@me.com}
+}
+
+\date{January 2026}
+
+% =============================================================================
+% BEGIN DOCUMENT
+% =============================================================================
+\begin{document}
+
+% Title page
+\maketitle
+\thispagestyle{plain}
+
+\vspace{1cm}
+
+% Abstract
+\begin{abstract}
+\noindent
+Skill Bundle Attestation (\sba) defines a deterministic identity and attestation framework for AI agent skill bundles. As AI agents increasingly rely on modular skills distributed as file bundles, the need for verifiable provenance and tamper detection becomes critical. \sba{} addresses this need through three key components: (1) a canonical bundle digest algorithm (\code{sba-directory-v1}) that produces reproducible identities independent of filesystem metadata; (2) attestation formats built on \intoto{} Statement v1 with SBA-specific predicates for content, audit, and approval workflows; and (3) optional \dsse{} envelope signatures with \sigstore{} integration for identity-backed verification. This document specifies the normative behavior of \sba{} tooling, defines the threat model and security considerations, and provides implementation guidance for producers, auditors, and verifiers. \sba{} is designed to be minimal, auditable, and compatible with existing supply chain security standards.
+\end{abstract}
+
+\vspace{1cm}
+
+% Status box
+\begin{center}
+\fbox{
+\begin{minipage}{0.9\textwidth}
+\centering
+\textbf{Status of This Document}\\[0.5em]
+This document specifies a standards-track protocol for the AI agent skill bundle community. Distribution of this document is unlimited. Comments and suggestions should be directed to the author.
+\end{minipage}
+}
+\end{center}
+
+\newpage
+
+% Table of Contents
+\tableofcontents
+\newpage
+
+% =============================================================================
+% SECTION 1: INTRODUCTION
+% =============================================================================
+\section{Introduction}
+\label{sec:introduction}
+
+AI agents increasingly rely on modular ``skills''---self-contained bundles of code, prompts, and configuration that extend agent capabilities. These skill bundles are analogous to software packages in traditional software ecosystems, yet they lack the mature supply chain security tooling that protects conventional software distribution.
+
+\sba{} (Skill Bundle Attestation) addresses this gap by providing:
+
+\begin{itemize}
+    \item A \textbf{deterministic bundle digest} algorithm that produces the same identity regardless of the platform, filesystem, or extraction method used.
+    \item A \textbf{standard attestation format} based on \intoto{} Statement v1 that enables producers, auditors, and approvers to make verifiable claims about bundle contents.
+    \item \textbf{Optional cryptographic signatures} using \dsse{} envelopes with support for \sigstore{} identity verification.
+\end{itemize}
+
+\subsection{Motivation}
+\label{sec:motivation}
+
+Without deterministic identity and verifiable attestations, users of skill bundles cannot confidently answer critical questions:
+
+\begin{enumerate}
+    \item Did the bundle change between the time it was built and the time it was deployed?
+    \item Is this the same bundle that was reviewed by a security team?
+    \item Can we detect if the bundle has been tampered with or replaced?
+    \item What claims has the producer made about the bundle's contents and capabilities?
+\end{enumerate}
+
+These questions are fundamental to supply chain security. Traditional software ecosystems address them through package managers, code signing, and software bills of materials (SBOMs). \sba{} brings equivalent protections to agent skill bundles.
+
+\subsection{Scope}
+\label{sec:scope}
+
+This document specifies:
+
+\begin{itemize}
+    \item The \code{sba-directory-v1} bundle digest algorithm
+    \item The structure and semantics of \sba{} attestation predicates
+    \item Verification rules for attestations and bundles
+    \item Integration with \dsse{} signatures and \sigstore{} verification
+\end{itemize}
+
+The following are explicitly \textbf{out of scope}:
+
+\begin{itemize}
+    \item Key management, identity provisioning, or PKI policy
+    \item Secure distribution of bundles or attestations
+    \item Runtime sandboxing or execution security
+    \item Supply chain risk scoring or trust frameworks
+\end{itemize}
+
+\subsection{Terminology}
+\label{sec:terminology}
+
+The key words ``\MUST'', ``\MUSTNOT'', ``\REQUIRED'', ``\SHOULD'', ``\SHOULDNOT'', ``\MAY'', and ``\OPTIONAL'' in this document are to be interpreted as described in RFC~2119~\cite{rfc2119}.
+
+\begin{description}
+    \item[Bundle] A directory or archive containing a skill and its associated files.
+    \item[Bundle Digest] The canonical SHA-256 hash computed over bundle contents using the \code{sba-directory-v1} algorithm.
+    \item[Archive Digest] The SHA-256 hash of an archive file's raw bytes.
+    \item[Attestation] A JSON statement making verifiable claims about a bundle.
+    \item[\dsse] Dead Simple Signing Envelope---a format for signed attestations.
+    \item[Predicate] The typed payload within an \intoto{} Statement describing specific claims.
+\end{description}
+
+\subsection{Document Organization}
+\label{sec:organization}
+
+Section~\ref{sec:background} provides background on related standards and prior work. Section~\ref{sec:design-goals} describes the design principles and non-goals of \sba. Section~\ref{sec:system-overview} gives a high-level overview of the system architecture. Section~\ref{sec:bundle-identity} specifies the bundle digest algorithm in detail. Sections~\ref{sec:attestation-model} and~\ref{sec:dsse-signatures} describe the attestation format and signature support. Section~\ref{sec:verification} specifies verification rules. Section~\ref{sec:threat-model} presents the threat model and security analysis. Section~\ref{sec:implementation} provides implementation guidance. Section~\ref{sec:interoperability} discusses integration with related standards. Appendices contain JSON schemas and test vectors.
+
+% =============================================================================
+% SECTION 2: BACKGROUND
+% =============================================================================
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{Supply Chain Security Standards}
+\label{sec:supply-chain-standards}
+
+The software supply chain security landscape has evolved significantly in recent years. Key standards and frameworks that inform \sba{} include:
+
+\textbf{SLSA (Supply-chain Levels for Software Artifacts)}~\cite{slsa} defines a framework for achieving progressively stronger supply chain security guarantees. \sba{} aligns with SLSA principles by providing deterministic builds (reproducible digests) and provenance attestations.
+
+\textbf{in-toto}~\cite{in-toto} is an attestation framework that enables verifiable claims about software supply chain steps. \sba{} uses \intoto{} Statement v1 as its attestation envelope format, ensuring compatibility with existing tooling and verification infrastructure.
+
+\textbf{DSSE (Dead Simple Signing Envelope)}~\cite{dsse} provides a simple, secure format for signing attestations. \sba{} supports \dsse{} envelopes for optional signature protection.
+
+\subsection{Software Bill of Materials}
+\label{sec:sbom}
+
+Software Bills of Materials (SBOMs) enumerate the components within a software artifact. While \sba{} does not directly produce SBOMs, it provides complementary capabilities: \sba{} attests to the \textit{identity} and \textit{integrity} of a bundle, while SBOMs enumerate its \textit{contents} and \textit{dependencies}.
+
+\subsection{Code Signing and Verification}
+\label{sec:code-signing}
+
+Traditional code signing relies on certificates and PKI infrastructure. \sigstore{}~\cite{sigstore} offers an alternative model using identity-based signing with transparency logs. \sba{} supports both traditional key-based signatures and \sigstore{} identity verification.
+
+\subsection{Agent and Skill Systems}
+\label{sec:agent-systems}
+
+Modern AI agent frameworks often support extensibility through skill or tool plugins. Examples include Anthropic's Model Context Protocol (MCP), LangChain tools, and various agent frameworks. These systems typically lack standardized mechanisms for verifying skill provenance and integrity---a gap that \sba{} addresses.
+
+% =============================================================================
+% SECTION 3: DESIGN GOALS
+% =============================================================================
+\section{Design Goals and Non-Goals}
+\label{sec:design-goals}
+
+\subsection{Design Principles}
+\label{sec:design-principles}
+
+\sba{} is designed according to the following principles:
+
+\begin{enumerate}
+    \item \textbf{Determinism}: Bundle digests \MUST{} be reproducible across platforms, filesystems, and time. The same bundle contents \MUST{} always produce the same digest.
+
+    \item \textbf{Minimalism}: The specification and reference implementation \SHOULD{} be small enough to audit completely. Dependencies \SHOULD{} be minimal.
+
+    \item \textbf{Compatibility}: \sba{} \MUST{} build on existing standards (\intoto, \dsse, \sigstore) rather than inventing new ones.
+
+    \item \textbf{Security by Default}: Safe handling of untrusted inputs (archives, paths) \MUST{} be the default behavior.
+
+    \item \textbf{Separation of Concerns}: Content identity (digests) and signatures \MUST{} be clearly separated. Unsigned attestations are still useful for integrity checking.
+\end{enumerate}
+
+\subsection{Non-Goals}
+\label{sec:non-goals}
+
+The following are explicitly \textbf{not} goals of \sba:
+
+\begin{itemize}
+    \item \textbf{Key Management}: \sba{} does not specify how signing keys are generated, distributed, rotated, or revoked. These are operational concerns left to deployers.
+
+    \item \textbf{Runtime Security}: \sba{} does not sandbox skill execution or enforce capability restrictions at runtime. It provides attestations about \textit{what} a bundle contains, not runtime enforcement of \textit{what} it can do.
+
+    \item \textbf{Trust Policy}: \sba{} does not define trust frameworks, reputation systems, or risk scoring. Consumers decide which attestations and signers to trust.
+
+    \item \textbf{Distribution}: \sba{} does not specify how bundles or attestations are distributed. It is compatible with any distribution mechanism (registries, git, file transfer, etc.).
+\end{itemize}
+
+% =============================================================================
+% SECTION 4: SYSTEM OVERVIEW
+% =============================================================================
+\section{System Overview}
+\label{sec:system-overview}
+
+\subsection{Architecture}
+\label{sec:architecture}
+
+\sba{} consists of three primary components:
+
+\begin{enumerate}
+    \item \textbf{Bundle Digest Algorithm} (\code{sba-directory-v1}): Computes a deterministic identity for a bundle based solely on file contents and normalized paths.
+
+    \item \textbf{Attestation Formats}: Structured claims about bundles expressed as \intoto{} statements with \sba{}-specific predicates.
+
+    \item \textbf{Verification Tooling}: Validators that check attestation schemas, recompute bundle digests, and optionally verify signatures.
+\end{enumerate}
+
+\subsection{Actor Roles}
+\label{sec:actor-roles}
+
+\sba{} defines four actor roles:
+
+\begin{description}
+    \item[Producer] Builds a skill bundle and generates a content attestation (\code{sba-content-v1}).
+
+    \item[Auditor] Reviews a bundle (e.g., for security vulnerabilities) and issues an audit attestation (\code{sba-audit-v1}) referencing the content attestation.
+
+    \item[Approver] Authorizes a bundle for deployment by issuing an approval attestation (\code{sba-approval-v1}) referencing content and audit attestations.
+
+    \item[Verifier] Validates attestations against a bundle, checking schema conformance, digest consistency, and optionally signatures.
+\end{description}
+
+\subsection{Workflow}
+\label{sec:workflow}
+
+A typical \sba{} workflow proceeds as follows:
+
+\begin{enumerate}
+    \item Producer creates a skill bundle with a \code{SKILL.md} manifest.
+    \item Producer runs \code{sba attest content} to generate a content attestation.
+    \item (Optional) Producer signs the attestation with \code{--sign}.
+    \item Auditor reviews the bundle and generates an audit attestation.
+    \item Approver reviews content and audit attestations, then generates an approval attestation.
+    \item Consumer runs \code{sba verify} to validate the attestation chain against the bundle.
+\end{enumerate}
+
+% =============================================================================
+% SECTION 5: BUNDLE IDENTITY
+% =============================================================================
+\section{Bundle Identity Specification}
+\label{sec:bundle-identity}
+
+The \code{sba-directory-v1} algorithm computes a deterministic digest over the contents of a bundle directory. This digest is independent of filesystem metadata (modification times, permissions, ownership) and is reproducible across platforms.
+
+\subsection{Overview}
+\label{sec:digest-overview}
+
+The algorithm proceeds in five phases:
+
+\begin{enumerate}
+    \item \textbf{Enumeration}: Recursively walk the bundle directory, collecting regular files.
+    \item \textbf{Filtering}: Exclude paths matching the exclusion set.
+    \item \textbf{Normalization}: Validate and normalize each path.
+    \item \textbf{Entry Generation}: For each file, compute SHA-256 and format the entry.
+    \item \textbf{Digest Computation}: Sort entries and compute the final SHA-256 over the concatenation.
+\end{enumerate}
+
+\subsection{Path Normalization and Validation}
+\label{sec:path-normalization}
+
+For each candidate file path, the following rules apply:
+
+\begin{itemize}
+    \item Paths \MUST{} use forward slashes (\code{/}) as separators.
+    \item Paths \MUST{} be Unicode NFC normalized.
+    \item Paths \MUSTNOT{} start with \code{/} (no absolute paths).
+    \item Paths \MUSTNOT{} contain \code{..} or \code{.} segments.
+    \item Paths \MUSTNOT{} contain NUL bytes (\code{\textbackslash x00}).
+    \item Paths \MUSTNOT{} contain backslashes (\code{\textbackslash}).
+    \item Path components \MUSTNOT{} be empty.
+    \item Total path length \MUST{} be $\leq$ 4096 characters.
+    \item Individual path components \MUST{} be $\leq$ 255 characters.
+\end{itemize}
+
+Paths violating any of these rules \MUST{} be rejected with an error.
+
+Additionally, verifiers \SHOULD{} detect and reject case-insensitive path collisions (e.g., \code{File.txt} and \code{file.txt}) to ensure consistent behavior across filesystems.
+
+\subsection{Exclusion Patterns}
+\label{sec:exclusion-patterns}
+
+The default exclusion set contains paths that are:
+\begin{itemize}
+    \item Version control metadata: \code{.git}, \code{.gitignore}, \code{.gitattributes}
+    \item Build artifacts: \code{\_\_pycache\_\_}, \code{node\_modules}, \code{.venv}
+    \item \sba{} metadata: \code{.attestations}, \code{.skillcheck}, paths containing \code{SBA.} or \code{.sba}
+    \item OS artifacts: \code{.DS\_Store}, \code{Thumbs.db}
+    \item Story tracking: \code{.specstory}
+\end{itemize}
+
+A path is excluded if any of its components exactly match an exclusion pattern or if any component starts with \code{SBA.} or \code{.sba}.
+
+\subsection{Entry Format}
+\label{sec:entry-format}
+
+For each included file, compute the SHA-256 hash over the raw file bytes and format the entry as:
+
+\begin{lstlisting}[language=bash,numbers=none]
+<path>\0sha256:<hex>\0<size>\n
+\end{lstlisting}
+
+Where:
+\begin{itemize}
+    \item \code{<path>} is the normalized relative path
+    \item \code{\textbackslash 0} is the NUL byte (0x00)
+    \item \code{sha256:<hex>} is the lowercase hexadecimal SHA-256 digest
+    \item \code{<size>} is the file size in bytes (decimal)
+    \item \code{\textbackslash n} is the newline character (0x0A)
+\end{itemize}
+
+Entries are UTF-8 encoded.
+
+\subsection{Sorting}
+\label{sec:sorting}
+
+Entries \MUST{} be sorted by path using bytewise comparison of UTF-8 encoded bytes. This ensures deterministic ordering regardless of locale settings.
+
+\subsection{Final Digest}
+\label{sec:final-digest}
+
+The bundle digest is the SHA-256 hash of the concatenated entry bytes. The digest is represented in the format \code{sha256:<hex>} where \code{<hex>} is the 64-character lowercase hexadecimal encoding.
+
+\subsection{Archive Mode}
+\label{sec:archive-mode}
+
+When operating on archive files (ZIP or tar):
+
+\begin{enumerate}
+    \item The \textbf{archive digest} is the SHA-256 hash of the archive file bytes.
+    \item The archive is extracted using safe extraction helpers (see Section~\ref{sec:threat-traversal}).
+    \item An optional \code{archiveRoot} parameter identifies the bundle root within the archive.
+    \item The \textbf{bundle digest} is computed over the extracted directory.
+\end{enumerate}
+
+For archive bundles, the attestation subject digest \MUST{} use the archive digest (not the bundle digest), as this is what consumers can verify against the distributed artifact.
+
+% =============================================================================
+% SECTION 6: ATTESTATION MODEL
+% =============================================================================
+\section{Attestation Model}
+\label{sec:attestation-model}
+
+\sba{} attestations are \intoto{} Statement v1 objects with \sba{}-specific predicate types.
+
+\subsection{in-toto Statement Structure}
+\label{sec:intoto-structure}
+
+Every \sba{} attestation is an \intoto{} Statement with the following structure:
+
+\begin{lstlisting}[language=json]
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "<skill-name>",
+      "digest": { "sha256": "<64-hex-chars>" }
+    }
+  ],
+  "predicateType": "<sba-predicate-uri>",
+  "predicate": { ... }
+}
+\end{lstlisting}
+
+The \code{subject} array \MUST{} contain exactly one entry representing the skill bundle. The \code{digest.sha256} value is:
+\begin{itemize}
+    \item For directory bundles: the \code{sba-directory-v1} digest (without the \code{sha256:} prefix)
+    \item For archive bundles: the archive file's SHA-256 hash
+\end{itemize}
+
+\subsection{SBA Predicate Types}
+\label{sec:predicate-types}
+
+\sba{} defines three predicate types:
+
+\subsubsection{sba-content-v1}
+\label{sec:sba-content}
+
+The content predicate describes bundle identity and metadata:
+
+\begin{lstlisting}[language=json]
+{
+  "skill": {
+    "name": "example-skill",
+    "description": "An example skill bundle",
+    "version": "1.0.0"
+  },
+  "bundle": {
+    "digestAlgorithm": "sba-directory-v1",
+    "digest": "sha256:<64-hex>",
+    "entryCount": 5,
+    "totalBytes": 12345,
+    "bundleType": "directory"
+  },
+  "capabilities": { ... },
+  "metadata": {
+    "generatedAt": "2026-01-27T00:00:00Z",
+    "generatorTool": "sba-attest",
+    "generatorVersion": "0.1.0"
+  }
+}
+\end{lstlisting}
+
+\subsubsection{sba-audit-v1}
+\label{sec:sba-audit}
+
+The audit predicate records security review results:
+
+\begin{lstlisting}[language=json]
+{
+  "contentAttestation": { "sha256": "<digest-of-content>" },
+  "auditor": { "name": "Security Team", "id": "..." },
+  "result": "passed",
+  "findings": [ ... ],
+  "metadata": { "auditedAt": "2026-01-27T12:00:00Z" }
+}
+\end{lstlisting}
+
+\subsubsection{sba-approval-v1}
+\label{sec:sba-approval}
+
+The approval predicate authorizes deployment:
+
+\begin{lstlisting}[language=json]
+{
+  "contentAttestation": { "sha256": "<digest-of-content>" },
+  "auditAttestation": { "sha256": "<digest-of-audit>" },
+  "approver": { "name": "Release Manager", "id": "..." },
+  "decision": "approved",
+  "constraints": { "environments": ["production"] },
+  "metadata": { "approvedAt": "2026-01-27T14:00:00Z" }
+}
+\end{lstlisting}
+
+\subsection{Capability Declarations}
+\label{sec:capabilities}
+
+The \code{capabilities} field in \code{sba-content-v1} allows producers to declare the bundle's requirements:
+
+\begin{itemize}
+    \item \textbf{filesystem}: Read/write path patterns
+    \item \textbf{network}: Outbound access and allowed domains
+    \item \textbf{process}: Subprocess execution and interpreters
+    \item \textbf{tools}: External tool/MCP access
+    \item \textbf{secrets}: Required credentials
+    \item \textbf{humanConfirmation}: Human-in-the-loop requirements
+\end{itemize}
+
+These declarations are \textit{claims} by the producer, not enforced constraints. Verifiers and runtimes \MAY{} use them for policy decisions.
+
+% =============================================================================
+% SECTION 7: DSSE AND SIGNATURES
+% =============================================================================
+\section{DSSE and Signatures}
+\label{sec:dsse-signatures}
+
+\sba{} supports optional \dsse{} envelopes for tamper detection and authenticity verification.
+
+\subsection{Envelope Structure}
+\label{sec:envelope-structure}
+
+A signed attestation is wrapped in a \dsse{} envelope:
+
+\begin{lstlisting}[language=json]
+{
+  "payloadType": "application/vnd.in-toto+json",
+  "payload": "<base64-encoded-statement>",
+  "signatures": [
+    {
+      "keyid": "SHA256:<fingerprint>",
+      "sig": "<base64-encoded-signature>"
+    }
+  ]
+}
+\end{lstlisting}
+
+The \code{payload} is the base64 encoding of the canonicalized JSON statement (keys sorted, minimal whitespace).
+
+\subsection{Signature Computation}
+\label{sec:signature-computation}
+
+Signatures are computed over the Pre-Authentication Encoding (PAE):
+
+\begin{lstlisting}[language=bash,numbers=none]
+PAE(payloadType, payload) =
+  "DSSEv1" + SP + len(payloadType) + SP + payloadType +
+  SP + len(payload) + SP + payload
+\end{lstlisting}
+
+Where \code{SP} is a space character and \code{len()} returns the byte length as a decimal string.
+
+\subsection{Supported Algorithms}
+\label{sec:supported-algorithms}
+
+\sba{} supports the following signature algorithms:
+
+\begin{itemize}
+    \item \textbf{ed25519}: Edwards-curve Digital Signature Algorithm
+    \item \textbf{ecdsa-sha256}: Elliptic Curve DSA with SHA-256
+    \item \textbf{rsa-pss-sha256}: RSA-PSS with SHA-256
+    \item \textbf{rsa-pkcs1v15-sha256}: RSA PKCS\#1 v1.5 with SHA-256
+\end{itemize}
+
+\subsection{Sigstore Integration}
+\label{sec:sigstore-integration}
+
+For identity-based verification, \sba{} supports \sigstore{} bundles. Verifiers can constrain acceptable signatures by:
+
+\begin{itemize}
+    \item \textbf{Identity}: The signer's email or OIDC subject
+    \item \textbf{Issuer}: The OIDC identity provider (e.g., GitHub Actions)
+\end{itemize}
+
+This enables verification without managing public keys directly.
+
+% =============================================================================
+% SECTION 8: VERIFICATION
+% =============================================================================
+\section{Verification Flow}
+\label{sec:verification}
+
+Verification validates that an attestation correctly describes a bundle.
+
+\subsection{Verification Steps}
+\label{sec:verification-steps}
+
+A compliant verifier \MUST{} perform the following steps:
+
+\begin{enumerate}
+    \item \textbf{Parse}: Decode the attestation (or \dsse{} envelope).
+
+    \item \textbf{Schema Validation}: Validate the statement and predicate against their JSON schemas.
+
+    \item \textbf{Digest Recomputation}: Compute the bundle digest using \code{sba-directory-v1}.
+
+    \item \textbf{Digest Comparison}:
+    \begin{itemize}
+        \item For directory bundles: verify \code{subject[0].digest.sha256} equals the computed bundle digest
+        \item For archive bundles: verify \code{subject[0].digest.sha256} equals the archive digest, and verify \code{predicate.bundle.digest} equals the computed bundle digest
+    \end{itemize}
+
+    \item \textbf{Metadata Consistency}: Verify \code{entryCount} and \code{totalBytes} match the actual bundle.
+
+    \item \textbf{Signature Verification} (if signed): Verify signatures using provided public keys or \sigstore{} constraints.
+
+    \item \textbf{Chain Verification} (for audit/approval): Verify referenced attestations exist and their digests match.
+\end{enumerate}
+
+\subsection{Verification Rules}
+\label{sec:verification-rules}
+
+\begin{description}
+    \item[VR-001] Verifiers \MUST{} reject if the subject digest does not match the computed artifact digest.
+
+    \item[VR-002] For directory bundles, verifiers \MUST{} reject if the subject digest does not equal the \code{predicate.bundle.digest} (prefix removed).
+
+    \item[VR-003] For archive bundles, verifiers \MUST{} reject if \code{predicate.bundle.archiveDigest} does not equal the subject digest.
+
+    \item[VR-004] Verifiers \MUST{} reject if \code{entryCount} does not match the actual file count.
+
+    \item[VR-005] Verifiers \MUST{} reject if \code{totalBytes} does not match the actual total size.
+
+    \item[VR-006] Verifiers \SHOULD{} warn if \code{subject[0].name} does not match \code{predicate.skill.name}.
+\end{description}
+
+% =============================================================================
+% SECTION 9: THREAT MODEL
+% =============================================================================
+\section{Threat Model and Security Analysis}
+\label{sec:threat-model}
+
+\subsection{Assets Under Protection}
+\label{sec:assets}
+
+\sba{} protects the following assets:
+
+\begin{itemize}
+    \item \textbf{Bundle Integrity}: The contents of a skill bundle (directory or archive)
+    \item \textbf{Attestation Integrity}: The claims made about a bundle
+    \item \textbf{Attestation Authenticity}: The identity of attestation signers
+    \item \textbf{Verification Correctness}: The accuracy of verification results
+\end{itemize}
+
+\subsection{Trust Boundaries}
+\label{sec:trust-boundaries}
+
+\sba{} defines the following trust boundaries:
+
+\begin{itemize}
+    \item Bundle producer vs. bundle consumer
+    \item Local filesystem vs. untrusted archive inputs
+    \item Offline verification vs. \sigstore{} online verification
+\end{itemize}
+
+\subsection{Threat Categories}
+\label{sec:threats}
+
+\subsubsection{T1: Archive Traversal and Path Injection}
+\label{sec:threat-traversal}
+
+\textbf{Threat}: Malicious archives containing \code{../} traversal sequences or absolute paths could escape the extraction directory.
+
+\textbf{Mitigation}: Safe extraction helpers reject traversal sequences, absolute paths, and symlinks. Path validation rejects unsafe paths before processing.
+
+\subsubsection{T2: Symlink and Non-Regular File Abuse}
+\label{sec:threat-symlink}
+
+\textbf{Threat}: Symlinks or device files could be used to read sensitive files or cause unexpected behavior.
+
+\textbf{Mitigation}: Bundle digests include only regular files. Symlinks and special files are excluded from enumeration.
+
+\subsubsection{T3: Case-Insensitive Path Collisions}
+\label{sec:threat-case-collision}
+
+\textbf{Threat}: Files like \code{File.txt} and \code{file.txt} may collide on case-insensitive filesystems, causing inconsistent verification.
+
+\textbf{Mitigation}: Digest computation detects and rejects case-colliding paths.
+
+\subsubsection{T4: Attestation Tampering}
+\label{sec:threat-tampering}
+
+\textbf{Threat}: An attacker modifies an attestation to match a malicious bundle.
+
+\textbf{Mitigation}: \dsse{} signatures protect attestation integrity. \sigstore{} provides identity verification.
+
+\subsubsection{T5: Schema Bypass}
+\label{sec:threat-schema}
+
+\textbf{Threat}: Malformed statements accepted due to incomplete validation.
+
+\textbf{Mitigation}: JSON Schema validation for all statement and predicate types.
+
+\subsubsection{T6: Digest Confusion}
+\label{sec:threat-confusion}
+
+\textbf{Threat}: Substituting an archive digest where a directory digest is expected.
+
+\textbf{Mitigation}: Separate fields (\code{digest}, \code{archiveDigest}) and explicit \code{bundleType} field.
+
+\subsubsection{T7: Resource Exhaustion}
+\label{sec:threat-exhaustion}
+
+\textbf{Threat}: Zip bombs or extremely deep directory trees cause denial of service.
+
+\textbf{Mitigation}: Callers \SHOULD{} apply size and depth limits. Safe extraction includes basic sanity checks.
+
+\subsubsection{T8: Missing Dependencies}
+\label{sec:threat-dependencies}
+
+\textbf{Threat}: Verification without required crypto libraries silently skips signature checks.
+
+\textbf{Mitigation}: Verification reports warnings for missing dependencies. \code{--require-signatures} enforces signature verification.
+
+\subsection{Residual Risks}
+\label{sec:residual-risks}
+
+The following risks are not fully mitigated by \sba:
+
+\begin{itemize}
+    \item Key compromise or weak operational key handling
+    \item Malicious code within an otherwise validly-signed bundle
+    \item Trust in \sigstore{} infrastructure and identity providers
+    \item Resource exhaustion from extremely large bundles
+\end{itemize}
+
+\subsection{Operational Recommendations}
+\label{sec:operational-recommendations}
+
+\begin{enumerate}
+    \item Require signatures for production verification
+    \item Pin expected signer identities or key fingerprints
+    \item Enforce size and depth limits for untrusted archives
+    \item Run verification in sandboxed environments
+    \item Maintain audit logs of verification decisions
+\end{enumerate}
+
+% =============================================================================
+% SECTION 10: IMPLEMENTATION
+% =============================================================================
+\section{Implementation Guidance}
+\label{sec:implementation}
+
+\subsection{Reference Implementation}
+\label{sec:reference-impl}
+
+The \sba{} reference implementation is intentionally minimal:
+
+\begin{itemize}
+    \item \code{sba\_digest.py}: Canonical digest algorithm
+    \item \code{sba\_attest.py}: Attestation generation
+    \item \code{sba\_verify.py}: Verification and schema validation
+    \item \code{sba\_crypto.py}: \dsse{} signing/verification helpers
+    \item \code{sba\_archive.py}: Safe ZIP/tar extraction
+    \item \code{sba\_zip.py}: Deterministic ZIP builder for test vectors
+\end{itemize}
+
+\subsection{CLI Usage}
+\label{sec:cli-usage}
+
+\begin{lstlisting}[language=bash]
+# Compute directory digest
+python3 sba.py digest path/to/skill
+
+# Generate content attestation
+python3 sba.py attest content path/to/skill \
+    --output attestation.json
+
+# Verify attestation
+python3 sba.py verify attestation.json \
+    --bundle path/to/skill
+
+# Sign with DSSE
+python3 sba.py attest content path/to/skill \
+    --envelope --sign --private-key key.pem \
+    --output signed.json
+
+# Verify signatures
+python3 sba.py verify signed.json \
+    --bundle path/to/skill \
+    --verify-signatures --public-key key.pub
+\end{lstlisting}
+
+\subsection{Test Vectors}
+\label{sec:test-vectors}
+
+The \code{test-vectors/} directory contains canonical test cases:
+
+\begin{itemize}
+    \item \code{tv-1-minimal}: Minimal single-file bundle
+    \item \code{tv-2-complex}: Multi-file bundle with nested directories
+    \item \code{tv-3-archive.zip}: Archive bundle with nested root
+\end{itemize}
+
+Each test vector includes expected digests and attestations for validation.
+
+% =============================================================================
+% SECTION 11: INTEROPERABILITY
+% =============================================================================
+\section{Interoperability}
+\label{sec:interoperability}
+
+\subsection{Relationship to in-toto}
+\label{sec:rel-intoto}
+
+\sba{} uses \intoto{} Statement v1 as its attestation format. This provides:
+
+\begin{itemize}
+    \item Compatibility with \intoto{} verification tooling
+    \item Ability to combine \sba{} attestations with other \intoto{} predicate types
+    \item Future compatibility with \intoto{} policy engines
+\end{itemize}
+
+\subsection{Relationship to DSSE}
+\label{sec:rel-dsse}
+
+\sba{} uses \dsse{} for signed attestations. This provides:
+
+\begin{itemize}
+    \item Standard envelope format understood by supply chain tools
+    \item Support for multiple signatures per attestation
+    \item Compatibility with \sigstore{} signing workflows
+\end{itemize}
+
+\subsection{Relationship to Sigstore}
+\label{sec:rel-sigstore}
+
+\sba{} integrates with \sigstore{} for identity-based verification:
+
+\begin{itemize}
+    \item Keyless signing using OIDC identity
+    \item Transparency log integration via Rekor
+    \item Identity constraints (email, issuer) for verification
+\end{itemize}
+
+\subsection{CI/CD Integration}
+\label{sec:cicd}
+
+\sba{} can be integrated into CI/CD pipelines:
+
+\begin{itemize}
+    \item Generate attestations during build
+    \item Sign with GitHub Actions OIDC tokens
+    \item Verify before deployment
+    \item Store attestations alongside bundles in registries
+\end{itemize}
+
+% =============================================================================
+% SECTION 12: PERFORMANCE
+% =============================================================================
+\section{Performance and Scalability}
+\label{sec:performance}
+
+\subsection{Complexity Analysis}
+\label{sec:complexity}
+
+\begin{itemize}
+    \item \textbf{Digest computation}: $O(n)$ where $n$ is total file bytes
+    \item \textbf{Path enumeration}: $O(m \log m)$ where $m$ is file count (dominated by sort)
+    \item \textbf{Schema validation}: $O(s)$ where $s$ is schema size
+    \item \textbf{Signature verification}: Constant time per signature
+\end{itemize}
+
+\subsection{Expected Performance}
+\label{sec:expected-performance}
+
+For typical skill bundles (10-100 files, <10MB total):
+
+\begin{itemize}
+    \item Digest computation: <100ms
+    \item Attestation generation: <200ms
+    \item Verification: <300ms
+\end{itemize}
+
+\subsection{Resource Limits}
+\label{sec:resource-limits}
+
+For very large bundles, implementers \SHOULD:
+
+\begin{itemize}
+    \item Stream file hashing rather than loading files into memory
+    \item Apply configurable limits on file count and total size
+    \item Consider parallel hashing for multi-core systems
+\end{itemize}
+
+% =============================================================================
+% SECTION 13: GOVERNANCE
+% =============================================================================
+\section{Governance and Evolution}
+\label{sec:governance}
+
+\subsection{Versioning Strategy}
+\label{sec:versioning}
+
+\sba{} uses explicit versioning for all formats:
+
+\begin{itemize}
+    \item Digest algorithm: \code{sba-directory-v1}
+    \item Predicate types: \code{sba-content-v1}, \code{sba-audit-v1}, \code{sba-approval-v1}
+    \item Schema URIs include version numbers
+\end{itemize}
+
+\subsection{Schema Evolution}
+\label{sec:schema-evolution}
+
+Schema changes follow these principles:
+
+\begin{itemize}
+    \item \textbf{Additive changes}: New optional fields can be added without version bump
+    \item \textbf{Breaking changes}: New required fields or semantic changes require new version
+    \item \textbf{Deprecation}: Old versions supported for at least one major release
+\end{itemize}
+
+\subsection{Backwards Compatibility}
+\label{sec:backwards-compat}
+
+Verifiers \SHOULD{} support multiple predicate versions simultaneously. Producers \SHOULD{} generate attestations using the latest stable version.
+
+% =============================================================================
+% SECTION 14: FUTURE WORK
+% =============================================================================
+\section{Future Work}
+\label{sec:future-work}
+
+\begin{itemize}
+    \item \textbf{Build Provenance}: Predicate type for build environment and inputs
+    \item \textbf{Dependency Manifests}: Integration with SBOM formats
+    \item \textbf{Transparency Logs}: Attestation publication to Rekor or similar
+    \item \textbf{Trust Profiles}: Configurable verification policies
+    \item \textbf{Registry Integration}: Standard APIs for attestation storage/retrieval
+\end{itemize}
+
+% =============================================================================
+% SECTION 15: CONCLUSION
+% =============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+Skill Bundle Attestation (\sba) provides a minimal, auditable framework for establishing verifiable identity and provenance for AI agent skill bundles. By building on established standards (\intoto, \dsse, \sigstore) and focusing on deterministic, platform-independent behavior, \sba{} enables the same supply chain security practices that protect traditional software to be applied to the emerging ecosystem of AI agent skills.
+
+The specification prioritizes simplicity and security by default. Safe archive handling, case-collision detection, and clear separation of content identity from signatures reflect lessons learned from supply chain security incidents. The threat model and verification rules provide clear guidance for implementers.
+
+\sba{} is designed to evolve. The versioning strategy and schema evolution principles ensure that improvements can be made while maintaining compatibility. Future work on build provenance, dependency manifests, and transparency log integration will further strengthen the security posture of skill bundle ecosystems.
+
+% =============================================================================
+% REFERENCES
+% =============================================================================
+\newpage
+\section*{References}
+\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{rfc2119}
+S. Bradner, ``Key words for use in RFCs to Indicate Requirement Levels,'' RFC 2119, March 1997.
+
+\bibitem{slsa}
+Supply-chain Levels for Software Artifacts (SLSA), \url{https://slsa.dev/}, 2024.
+
+\bibitem{in-toto}
+in-toto: A framework to secure the integrity of software supply chains, \url{https://in-toto.io/}, 2024.
+
+\bibitem{dsse}
+Dead Simple Signing Envelope (DSSE), \url{https://github.com/secure-systems-lab/dsse}, 2024.
+
+\bibitem{sigstore}
+Sigstore: A new standard for signing, verifying and protecting software, \url{https://www.sigstore.dev/}, 2024.
+
+\bibitem{intoto-spec}
+in-toto Attestation Framework Specification, \url{https://github.com/in-toto/attestation}, 2024.
+
+\bibitem{sha256}
+NIST, ``Secure Hash Standard (SHS),'' FIPS PUB 180-4, August 2015.
+
+\bibitem{nfc}
+Unicode Standard Annex \#15: Unicode Normalization Forms, \url{https://unicode.org/reports/tr15/}, 2024.
+
+\bibitem{json-schema}
+JSON Schema: A Media Type for Describing JSON Documents, \url{https://json-schema.org/}, 2024.
+
+\end{thebibliography}
+
+% =============================================================================
+% APPENDICES
+% =============================================================================
+\newpage
+\appendix
+
+\section{JSON Schema: sba-statement-v1}
+\label{app:schema-statement}
+
+\begin{lstlisting}[language=json,basicstyle=\ttfamily\scriptsize]
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jlov7.github.io/sba/schemas/sba-statement-v1.json",
+  "title": "SBA In-toto Statement",
+  "type": "object",
+  "required": ["_type", "subject", "predicateType", "predicate"],
+  "properties": {
+    "_type": {
+      "const": "https://in-toto.io/Statement/v1"
+    },
+    "subject": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "digest"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 128 },
+          "digest": {
+            "type": "object",
+            "required": ["sha256"],
+            "properties": {
+              "sha256": { "pattern": "^[a-f0-9]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    "predicateType": {
+      "enum": [
+        "https://jlov7.github.io/sba/predicates/sba-content-v1",
+        "https://jlov7.github.io/sba/predicates/sba-audit-v1",
+        "https://jlov7.github.io/sba/predicates/sba-approval-v1"
+      ]
+    },
+    "predicate": { "type": "object" }
+  }
+}
+\end{lstlisting}
+
+\section{JSON Schema: sba-content-v1}
+\label{app:schema-content}
+
+\begin{lstlisting}[language=json,basicstyle=\ttfamily\scriptsize]
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jlov7.github.io/sba/schemas/sba-content-v1.json",
+  "title": "SBA Content Predicate v1",
+  "type": "object",
+  "required": ["skill", "bundle"],
+  "properties": {
+    "skill": {
+      "type": "object",
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string", "maxLength": 128 },
+        "description": { "type": "string", "maxLength": 1024 },
+        "version": { "type": "string" }
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "required": ["digestAlgorithm", "digest", "entryCount", "totalBytes"],
+      "properties": {
+        "digestAlgorithm": { "const": "sba-directory-v1" },
+        "digest": { "pattern": "^sha256:[a-f0-9]{64}$" },
+        "archiveDigest": { "pattern": "^sha256:[a-f0-9]{64}$" },
+        "bundleType": { "enum": ["directory", "archive"] },
+        "entryCount": { "type": "integer", "minimum": 1 },
+        "totalBytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "capabilities": { "type": "object" },
+    "metadata": { "type": "object" }
+  }
+}
+\end{lstlisting}
+
+\section{Test Vector: tv-1-minimal}
+\label{app:test-vector-minimal}
+
+\textbf{Bundle Contents}:
+\begin{lstlisting}[language=bash,numbers=none]
+tv-1-minimal/
+  SKILL.md
+\end{lstlisting}
+
+\textbf{SKILL.md}:
+\begin{lstlisting}[numbers=none]
+---
+name: minimal-skill
+description: A minimal test skill
+---
+
+# Minimal Skill
+
+This is a minimal skill for testing.
+\end{lstlisting}
+
+\textbf{Expected Entry String}:
+\begin{lstlisting}[numbers=none]
+SKILL.md\0sha256:<file-hash>\0<size>\n
+\end{lstlisting}
+
+\textbf{Expected Bundle Digest}: Computed from the single entry.
+
+\section{Glossary}
+\label{app:glossary}
+
+\begin{description}
+    \item[Attestation] A signed or unsigned statement making claims about a software artifact.
+    \item[Bundle] A directory or archive containing skill code and configuration.
+    \item[Bundle Digest] The canonical SHA-256 hash of bundle contents per \code{sba-directory-v1}.
+    \item[DSSE] Dead Simple Signing Envelope---a format for cryptographically signing attestations.
+    \item[in-toto] An attestation framework for software supply chain integrity.
+    \item[Predicate] The typed payload within an \intoto{} Statement.
+    \item[Sigstore] A project providing keyless signing and verification for software artifacts.
+    \item[Skill] A modular capability extension for an AI agent.
+\end{description}
+
+\end{document}

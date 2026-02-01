@@ -17,3 +17,28 @@ mutants/
 .cursorindexingignore
 artifacts/
 .DS_Store
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# Local skill files (user-specific)
+*.skill
+*-skill.zip
+.skills/
+
+# Editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp files
+.mutmut-cache
