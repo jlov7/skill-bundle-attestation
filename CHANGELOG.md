@@ -47,4 +47,4 @@ This release aligns with:
 - [DSSE v1](https://github.com/secure-systems-lab/dsse) - Dead Simple Signing Envelope
 - [Sigstore](https://sigstore.dev/) - Keyless signing infrastructure
 
-[1.0.0]: https://github.com/jlov7/sba/releases/tag/v1.0.0
+[1.0.0]: https://github.com/jlov7/skill-bundle-attestation/releases/tag/v1.0.0
