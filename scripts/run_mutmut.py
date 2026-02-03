@@ -62,6 +62,14 @@ def _resolve_timeout_seconds() -> float | None:
     return value
 
 
+def _resolve_mutation_paths() -> list[str] | None:
+    raw = os.environ.get("SBA_MUTMUT_PATHS", "").strip()
+    if not raw:
+        return None
+    paths = [item.strip() for item in raw.split(",") if item.strip()]
+    return paths or None
+
+
 def _sync_tests() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     tests_src = repo_root / "tests"
@@ -126,6 +134,10 @@ def main() -> int:
     mutmut_main.Thread = _NoThread
     mutmut_main.PytestRunner = _SubprocessPytestRunner
     mutmut_main.setproctitle = lambda *_args, **_kwargs: None
+    mutmut_main.ensure_config_loaded()
+    override_paths = _resolve_mutation_paths()
+    if override_paths is not None:
+        mutmut.config.paths_to_mutate = override_paths
     _seed_all_tests()
 
     mutmut_main._run(args.mutant_names, args.max_children)
