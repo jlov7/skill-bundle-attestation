@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from scripts import run_mutmut
 
 
@@ -27,3 +30,17 @@ def test_load_paths_to_mutate():
     paths = run_mutmut_chunks._load_paths_to_mutate()
     assert "sba_digest.py" in paths
     assert "sba_verify.py" in paths
+
+
+def test_extend_pythonpath_adds_root():
+    env: dict[str, str] = {}
+    run_mutmut._extend_pythonpath(env, Path("/tmp/root"))
+    assert env["PYTHONPATH"] == "/tmp/root"
+
+    env = {"PYTHONPATH": os.pathsep.join(["/other", "/else"])}
+    run_mutmut._extend_pythonpath(env, Path("/tmp/root"))
+    assert env["PYTHONPATH"].split(os.pathsep)[0] == "/tmp/root"
+
+    env = {"PYTHONPATH": os.pathsep.join(["/tmp/root", "/other"])}
+    run_mutmut._extend_pythonpath(env, Path("/tmp/root"))
+    assert env["PYTHONPATH"] == os.pathsep.join(["/tmp/root", "/other"])
