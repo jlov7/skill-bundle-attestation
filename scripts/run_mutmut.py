@@ -35,6 +35,7 @@ class _SubprocessPytestRunner(mutmut_main.PytestRunner):
         env = os.environ.copy()
         env.setdefault("SBA_MUTMUT", "1")
         env.setdefault("MUTANT_UNDER_TEST", "")
+        _extend_pythonpath(env, Path(__file__).resolve().parents[1])
         try:
             result = subprocess.run(
                 [sys.executable, *args],
@@ -62,6 +63,26 @@ def _resolve_timeout_seconds() -> float | None:
     return value
 
 
+def _resolve_mutation_paths() -> list[str] | None:
+    raw = os.environ.get("SBA_MUTMUT_PATHS", "").strip()
+    if not raw:
+        return None
+    paths = [item.strip() for item in raw.split(",") if item.strip()]
+    return paths or None
+
+
+def _extend_pythonpath(env: dict[str, str], repo_root: Path) -> None:
+    root = str(repo_root)
+    existing = env.get("PYTHONPATH", "")
+    if existing:
+        entries = existing.split(os.pathsep)
+        if root in entries:
+            return
+        env["PYTHONPATH"] = os.pathsep.join([root, existing])
+    else:
+        env["PYTHONPATH"] = root
+
+
 def _sync_tests() -> None:
     repo_root = Path(__file__).resolve().parents[1]
     tests_src = repo_root / "tests"
@@ -79,6 +100,7 @@ def _collect_all_tests() -> list[str]:
     env = os.environ.copy()
     env.setdefault("SBA_MUTMUT", "1")
     env.setdefault("MUTANT_UNDER_TEST", "")
+    _extend_pythonpath(env, Path(__file__).resolve().parents[1])
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only"],
         cwd="mutants",
@@ -126,6 +148,10 @@ def main() -> int:
     mutmut_main.Thread = _NoThread
     mutmut_main.PytestRunner = _SubprocessPytestRunner
     mutmut_main.setproctitle = lambda *_args, **_kwargs: None
+    mutmut_main.ensure_config_loaded()
+    override_paths = _resolve_mutation_paths()
+    if override_paths is not None:
+        mutmut.config.paths_to_mutate = override_paths
     _seed_all_tests()
 
     mutmut_main._run(args.mutant_names, args.max_children)

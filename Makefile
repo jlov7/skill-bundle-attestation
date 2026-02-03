@@ -33,6 +33,6 @@ lock:
 	$(PYTHON) -m piptools compile --strip-extras --output-file requirements-strict.lock requirements-strict.txt
 
 verify-strict: verify
-	SBA_MUTMUT=1 $(PYTHON) scripts/run_mutmut.py --max-children $(MUTMUT_MAX_CHILDREN)
+	SBA_MUTMUT=1 $(PYTHON) scripts/run_mutmut_chunks.py --max-children $(MUTMUT_MAX_CHILDREN)
 	SBA_MUTMUT=1 $(PYTHON) -m mutmut results
 	$(PYTHON) scripts/mutation_guard.py
