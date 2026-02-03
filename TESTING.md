@@ -36,9 +36,11 @@ make verify-strict
 ```
 
 `verify-strict` runs `mutmut` using `setup.cfg` and can take a while. It
-invokes `scripts/run_mutmut.py`, which runs pytest in subprocesses and seeds
-all mutants with the full test list to avoid forking after threads (improves
-stability on macOS/Python 3.14 at the cost of longer runtimes).
+invokes `scripts/run_mutmut_chunks.py`, which executes mutation testing in
+per-module chunks for visible progress and resumability. Each chunk uses
+`scripts/run_mutmut.py`, which runs pytest in subprocesses and seeds all mutants
+with the full test list to avoid forking after threads (improves stability on
+macOS/Python 3.14 at the cost of longer runtimes).
 The Makefile sets `SBA_MUTMUT=1` so the runtime patch only applies to mutation
 runs.
 `verify-strict` also runs `scripts/mutation_guard.py` to enforce mutation
@@ -50,13 +52,25 @@ script directly:
 ```bash
 PYTHON=python3.12 make verify-strict
 # or
-SBA_MUTMUT=1 python3.12 scripts/run_mutmut.py
+SBA_MUTMUT=1 python3.12 scripts/run_mutmut_chunks.py
 SBA_MUTMUT=1 python3.12 -m mutmut results
 ```
 
 You can also tune parallelism to improve stability or speed:
 ```bash
 MUTMUT_MAX_CHILDREN=1 make verify-strict
+```
+
+Per-mutant pytest timeouts prevent hangs in pathological mutants. Override or
+disable if needed:
+```bash
+SBA_MUTMUT_TIMEOUT=300 make verify-strict
+SBA_MUTMUT_TIMEOUT=0 make verify-strict
+```
+
+For debugging a single module, override mutation paths:
+```bash
+SBA_MUTMUT_PATHS=sba_digest.py make verify-strict
 ```
 
 To update the mutation baseline after an intentional test expansion:
