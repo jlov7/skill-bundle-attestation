@@ -59,6 +59,13 @@ You can also tune parallelism to improve stability or speed:
 MUTMUT_MAX_CHILDREN=1 make verify-strict
 ```
 
+The mutmut runner enforces a per-mutant pytest timeout (default: 120s) to avoid
+hangs caused by pathological mutants. Override or disable it with:
+```bash
+SBA_MUTMUT_TIMEOUT=300 make verify-strict
+SBA_MUTMUT_TIMEOUT=0 make verify-strict
+```
+
 To update the mutation baseline after an intentional test expansion:
 ```bash
 python3 scripts/mutation_guard.py --update-baseline

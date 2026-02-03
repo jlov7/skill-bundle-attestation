@@ -104,6 +104,7 @@ python3 sba_verify.py attestation.json \
 ## Documentation
 - `docs/specification.md` — protocol and algorithm specification
 - `docs/threat-model.md` — threat model and mitigations
+- `RFC/SBA-Specification-v1.0.0-Draft-202602.pdf` — full RFC/whitepaper (PDF)
 - `examples/e2e/README.md` — end-to-end demo walkthrough
 
 ## Testing

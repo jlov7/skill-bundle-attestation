@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Sigstore integration for identity-based verification
 
 - **Documentation**
-  - RFC/whitepaper with complete specification (31 pages)
+  - RFC/whitepaper with complete specification (25 pages)
   - Threat model analysis with mitigations
   - JSON schemas for all attestation formats
   - Quickstart guide and usage examples

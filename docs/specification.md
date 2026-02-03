@@ -1,6 +1,6 @@
 # SBA Specification (Draft)
 
-Version: 0.1.0
+Version: 1.0.0
 
 ## 1. Overview
 Skill Bundle Attestation (SBA) defines a deterministic bundle identity and
