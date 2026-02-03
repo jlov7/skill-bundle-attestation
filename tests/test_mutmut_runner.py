@@ -32,6 +32,22 @@ def test_load_paths_to_mutate():
     assert "sba_verify.py" in paths
 
 
+def test_load_chunk_progress(tmp_path):
+    from scripts import run_mutmut_chunks
+
+    meta_path = tmp_path / "sba_digest.py.meta"
+    meta_path.write_text(
+        '{"exit_code_by_key": {"a": null, "b": 0, "c": 1, "d": 33}}',
+        encoding="utf-8",
+    )
+    total, done, killed, survived, other = run_mutmut_chunks._load_chunk_progress(meta_path)
+    assert total == 4
+    assert done == 3
+    assert killed == 1
+    assert survived == 1
+    assert other == 1
+
+
 def test_extend_pythonpath_adds_root():
     env: dict[str, str] = {}
     run_mutmut._extend_pythonpath(env, Path("/tmp/root"))
