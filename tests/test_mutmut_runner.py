@@ -19,3 +19,11 @@ def test_resolve_timeout_disable(monkeypatch):
 def test_resolve_paths_override(monkeypatch):
     monkeypatch.setenv("SBA_MUTMUT_PATHS", "sba_digest.py,sba_verify.py")
     assert run_mutmut._resolve_mutation_paths() == ["sba_digest.py", "sba_verify.py"]
+
+
+def test_load_paths_to_mutate():
+    from scripts import run_mutmut_chunks
+
+    paths = run_mutmut_chunks._load_paths_to_mutate()
+    assert "sba_digest.py" in paths
+    assert "sba_verify.py" in paths
