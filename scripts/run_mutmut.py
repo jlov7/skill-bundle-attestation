@@ -26,6 +26,7 @@ class _SubprocessPytestRunner(mutmut_main.PytestRunner):
             # Stats collection is disabled in this runner.
             return 0
 
+        timeout = _resolve_timeout_seconds()
         args = ["-m", "pytest", "--rootdir=.", "--tb=native", *params, *self._pytest_add_cli_args]
         if mutmut.config.debug:
             args = ["-vv", *args]
@@ -34,8 +35,31 @@ class _SubprocessPytestRunner(mutmut_main.PytestRunner):
         env = os.environ.copy()
         env.setdefault("SBA_MUTMUT", "1")
         env.setdefault("MUTANT_UNDER_TEST", "")
-        result = subprocess.run([sys.executable, *args], env=env, check=False)
+        try:
+            result = subprocess.run(
+                [sys.executable, *args],
+                env=env,
+                check=False,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            mutant = env.get("MUTANT_UNDER_TEST") or "unknown-mutant"
+            print(f"mutmut timeout after {timeout:.0f}s for {mutant}", file=sys.stderr)
+            return 1
         return int(result.returncode)
+
+
+def _resolve_timeout_seconds() -> float | None:
+    raw = os.environ.get("SBA_MUTMUT_TIMEOUT", "").strip()
+    if not raw:
+        return 120.0
+    try:
+        value = float(raw)
+    except ValueError:
+        return 120.0
+    if value <= 0:
+        return None
+    return value
 
 
 def _sync_tests() -> None:
