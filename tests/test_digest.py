@@ -10,22 +10,22 @@ import sba_digest
 
 
 @pytest.mark.parametrize(
-    "bad_path",
+    ("bad_path", "match"),
     [
-        "",
-        "../secret",
-        "./",
-        "./bad",
-        "a//b",
-        "a/./b",
-        "a/../b",
-        "/abs/path",
-        "a\\b",
-        "nul\x00byte",
+        ("", r"^Empty path$"),
+        ("../secret", r"^Path traversal"),
+        ("./", r"^Current directory"),
+        ("./bad", r"^Current directory"),
+        ("a//b", r"^Empty path component"),
+        ("a/./b", r"^Current directory"),
+        ("a/../b", r"^Path traversal"),
+        ("/abs/path", r"^Absolute path"),
+        ("a\\b", r"^Path contains backslash"),
+        ("nul\x00byte", r"^Path contains NUL byte"),
     ],
 )
-def test_validate_path_rejects_invalid(bad_path: str) -> None:
-    with pytest.raises(sba_digest.PathValidationError):
+def test_validate_path_rejects_invalid(bad_path: str, match: str) -> None:
+    with pytest.raises(sba_digest.PathValidationError, match=match):
         sba_digest.validate_path(bad_path)
 
 
@@ -63,9 +63,23 @@ def test_formatters_render_digest(tmp_path: Path) -> None:
 
     json_payload = json.loads(sba_digest.format_result_json(result))
     assert json_payload["bundleDigest"] == f"sha256:{result.digest}"
+    assert json_payload["algorithm"] == result.algorithm
     assert json_payload["entryCount"] == result.entry_count
+    assert json_payload["totalBytes"] == result.total_bytes
+    entries = {entry["path"]: entry for entry in json_payload["entries"]}
+    assert len(entries) == result.entry_count
+    for entry in result.entries:
+        payload = entries[entry.path]
+        assert payload["digest"] == f"sha256:{entry.digest}"
+        assert payload["size"] == entry.size
 
     human_payload = sba_digest.format_result_human(result)
+    assert f"Bundle Digest: sha256:{result.digest}" in human_payload
+    assert f"Files: {result.entry_count}" in human_payload
+    assert f"Total Size: {result.total_bytes:,} bytes" in human_payload
+    assert "Entries:" in human_payload
+    for entry in result.entries:
+        assert entry.path in human_payload
     assert result.digest in human_payload
 
 
@@ -84,13 +98,13 @@ def test_should_exclude_default_patterns() -> None:
 
 def test_validate_path_rejects_long_component() -> None:
     component = "a" * (sba_digest.MAX_PATH_COMPONENT_LENGTH + 1)
-    with pytest.raises(sba_digest.PathValidationError):
+    with pytest.raises(sba_digest.PathValidationError, match=r"^Path component exceeds"):
         sba_digest.validate_path(f"{component}/file.txt")
 
 
 def test_validate_path_rejects_long_path() -> None:
     long_path = "a" * (sba_digest.MAX_PATH_LENGTH + 1)
-    with pytest.raises(sba_digest.PathValidationError):
+    with pytest.raises(sba_digest.PathValidationError, match=r"^Path exceeds"):
         sba_digest.validate_path(long_path)
 
 
