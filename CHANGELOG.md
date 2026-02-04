@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Quickstart guide and usage examples
 
 - **Testing**
-  - 74 tests covering core functionality
+  - 81 tests covering core functionality
   - Test vectors with deterministic expected digests
   - Security-focused test suite for archive handling
   - CI pipeline with automated validation

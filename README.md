@@ -27,53 +27,54 @@ python3 sba.py --help
 python3 sba.py digest path/to/skill
 python3 sba.py attest content path/to/skill --output attestation.json
 python3 sba.py verify attestation.json --bundle path/to/skill
-python3 sba.py zip path/to/skill --output skill.zip
+python3 sba.py zip path/to/skill skill.zip
 ```
 
 ### Direct commands
-### Compute a directory digest
+
+#### Compute a directory digest
 ```bash
 python3 sba_digest.py path/to/skill
 ```
 
-### Compute an archive digest
+#### Compute an archive digest
 ```bash
 python3 sba_digest.py path/to/skill.zip --archive
 ```
 
-### Generate a content attestation
+#### Generate a content attestation
 ```bash
 python3 sba_attest.py content path/to/skill --output attestation.json
 ```
 
-### Verify an attestation
+#### Verify an attestation
 ```bash
 python3 sba_verify.py attestation.json --bundle path/to/skill
 ```
 
-### Archive attestation
+#### Archive attestation
 ```bash
 python3 sba_attest.py content path/to/skill.zip --archive --output attestation.json
 python3 sba_verify.py attestation.json --bundle path/to/skill.zip --archive
 ```
 
-### Archive with nested root
+#### Archive with nested root
 ```bash
 python3 sba_attest.py content path/to/skill.tar.gz --archive --archive-root skill --output attestation.json
 python3 sba_verify.py attestation.json --bundle path/to/skill.tar.gz --archive --archive-root skill
 ```
 
-### Sign a DSSE envelope
+#### Sign a DSSE envelope
 ```bash
 python3 sba_attest.py content path/to/skill --envelope --sign --private-key key.pem --output attestation.json
 ```
 
-### Verify DSSE signatures
+#### Verify DSSE signatures
 ```bash
 python3 sba_verify.py attestation.json --bundle path/to/skill --verify-signatures --public-key key.pub
 ```
 
-### Verify audit/approval chains
+#### Verify audit/approval chains
 ```bash
 python3 sba_verify.py audit.json --bundle path/to/skill --content-attestation content.json
 python3 sba_verify.py approval.json --bundle path/to/skill \
@@ -81,7 +82,7 @@ python3 sba_verify.py approval.json --bundle path/to/skill \
   --audit-attestation audit.json
 ```
 
-### Verify Sigstore bundle (DSSE)
+#### Verify Sigstore bundle (DSSE)
 ```bash
 python3 sba_verify.py attestation.json \
   --bundle path/to/skill \
