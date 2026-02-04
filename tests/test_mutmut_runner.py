@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 
+import pytest
+
+pytest.importorskip("mutmut")
+
 from scripts import run_mutmut
 
 
