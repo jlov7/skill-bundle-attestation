@@ -8,7 +8,8 @@ on:
 jobs:
   verify-strict:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Weekly strict mutation runs exceed 45 minutes on GitHub-hosted runners.
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
